@@ -1,16 +1,25 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import React from 'react';
-import { useColorScheme } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native'
+import React, {useEffect} from 'react'
+import { Stack } from 'expo-router'
+import { initDatabase } from '@/database/db'
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+const RootLayout = () => {
+  try {
+      useEffect(()=>{
+    initDatabase();
+  },[])
+  } catch (error) {
+    console.log(`db failed`,error);
+    
+  }
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
-  );
+  <Stack>
+    <Stack.Screen name='(tabs)' options={{headerShown:false}} />
+  </Stack>
+  )
 }
+
+export default RootLayout;
+
+const styles = StyleSheet.create({})
