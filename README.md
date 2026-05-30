@@ -23,6 +23,9 @@ npx expo start --clear
 ```
 Scan QR with Expo Go app on mobile.
 
+<img width="765" height="1600" alt="WhatsApp Image 2026-05-30 at 11 29 31 PM" src="https://github.com/user-attachments/assets/18fea819-06a7-40cf-873f-63a05d6d8bac" />
+
+
 ## Project Structure
 - `src/database/` — SQLite setup and queries
 - `src/hooks/` — React hooks
