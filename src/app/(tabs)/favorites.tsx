@@ -2,8 +2,8 @@ import { SearchBar } from "@/components/SearchBar";
 import { SnippetCard } from "@/components/SnippetCard";
 import { useSnippets } from "@/hooks/useSnippets";
 import { Snippet } from "@/types";
-import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { router,useFocusEffect  } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -17,10 +17,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function FavoritesScreen() {
   const { favorites, loading, error, refresh, markFavorite } = useSnippets();
+  useFocusEffect(
+  useCallback(() => {
+    refresh();
+  }, [])
+);
 
   const [query, setQuery] = useState("");
 
-  // ── Filter favorites by search query ──
+
   const filtered = useMemo(() => {
     if (!query.trim()) return favorites;
     const q = query.toLowerCase();
@@ -119,7 +124,7 @@ export default function FavoritesScreen() {
                 </Text>
               </>
             ) : (
-              // ── Empty because no favorites yet ──
+         
               <>
                 <Text style={styles.emptyIcon}>☆</Text>
                 <Text style={styles.emptyTitle}>No favorites yet</Text>

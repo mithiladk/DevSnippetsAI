@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   View,
   FlatList,
@@ -8,7 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router,useFocusEffect  } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSnippets } from '@/hooks/useSnippets';
 import { SnippetCard } from '@/components/SnippetCard';
@@ -27,9 +27,14 @@ export default function HomeScreen() {
     markFavorite,
   } = useSnippets();
 
+  useFocusEffect(
+  useCallback(() => {
+    refresh();
+  }, [])
+);
   const [query, setQuery] = useState('');
 
-  // ─── Derived: filter snippets based on search query ───
+
   const filtered = useMemo(() => {
     if (!query.trim()) return snippets;
     const q = query.toLowerCase();
@@ -82,7 +87,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
 
-      {/* ── Header ── */}
+    
       <View style={styles.header}>
         <View>
           <Text style={styles.headerTitle}>DevSnippets</Text>
@@ -95,21 +100,21 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* ── Search Bar ── */}
+  
       <SearchBar
         value={query}
         onChangeText={setQuery}
         onClear={() => setQuery('')}
       />
 
-      {/* ── Results label when searching ── */}
+
       {query.trim() !== '' && (
         <Text style={styles.resultsLabel}>
           {filtered.length} result{filtered.length !== 1 ? 's' : ''} for "{query}"
         </Text>
       )}
 
-      {/* ── Snippet List ── */}
+
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
@@ -214,7 +219,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // ── Error ──
+
   errorText: {
     color: '#FF6B6B',
     fontSize: 15,
