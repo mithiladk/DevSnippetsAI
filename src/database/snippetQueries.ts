@@ -62,22 +62,24 @@ export function getAllSnippets():Snippet[] {
     );
     return rows.map(rowToSnippet)
 }
-export function getSnippetById(id: string): Snippet |  null {
+export function getSnippetById(id: string): Snippet | null {
     const row = db.getFirstSync<SnippetRow>(
-        `SELECT * FROM snippets WHERE id = ?`
+        `SELECT * FROM snippets WHERE id = ?`,
+        [id]  // ← added
     );
-    return row ? rowToSnippet(row) :  null;
+    return row ? rowToSnippet(row) : null;
 }
 
 export function searchSnippets(query: string): Snippet[] {
     const searchTerm = `%${query}%`;
     const rows = db.getAllSync<SnippetRow>(
         `SELECT * FROM snippets
-         WHERE title LIKE ?
-         OR code LIKE ?
-         ORDER BY updatedAt DESC
-        `,
-        [searchTerm,searchTerm,searchTerm]
+         WHERE title    LIKE ?
+            OR code     LIKE ?
+            OR language LIKE ?
+            OR tags     LIKE ?
+         ORDER BY updatedAt DESC`,
+        [searchTerm, searchTerm, searchTerm, searchTerm]  // ← 4 = 4
     );
     return rows.map(rowToSnippet);
 }

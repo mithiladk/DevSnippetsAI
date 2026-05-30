@@ -7,6 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "devsnippetsai",
     "userInterfaceStyle": "automatic",
+     "platforms": ["ios", "android"],
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -36,7 +37,8 @@
         }
       ],
       "expo-sqlite",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

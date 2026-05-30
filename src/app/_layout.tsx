@@ -1,25 +1,29 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, {useEffect} from 'react'
-import { Stack } from 'expo-router'
-import { initDatabase } from '@/database/db'
+// src/app/_layout.tsx
 
-const RootLayout = () => {
-  try {
-      useEffect(()=>{
-    initDatabase();
-  },[])
-  } catch (error) {
-    console.log(`db failed`,error);
-    
-  }
+import { useEffect } from 'react';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { initDatabase } from '@/database/db';
+
+export default function RootLayout() {
+  useEffect(() => {
+    try {
+      initDatabase();
+    } catch (error) {
+      console.error('DB init failed:', error);
+    }
+  }, []);
 
   return (
-  <Stack>
-    <Stack.Screen name='(tabs)' options={{headerShown:false}} />
-  </Stack>
-  )
+    <>
+      <Stack>
+        <Stack.Screen name="(tabs)"            options={{ headerShown: false }} />
+        <Stack.Screen name="snippet/create"    options={{ headerShown: false }} />
+        <Stack.Screen name="snippet/[id]"      options={{ headerShown: false }} />
+        <Stack.Screen name="snippet/edit/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="settings"          options={{ headerShown: false }} />
+      </Stack>
+      <StatusBar style="light" />
+    </>
+  );
 }
-
-export default RootLayout;
-
-const styles = StyleSheet.create({})

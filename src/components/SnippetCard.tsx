@@ -1,0 +1,135 @@
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Snippet } from '@/types';
+import { LanguageBadge } from '@/components/LanguageBadge';
+
+interface SnippetCardProps {
+  snippet: Snippet;
+  onPress: (snippet: Snippet) => void;
+  onLongPress?: (snippet: Snippet) => void;
+}
+export function SnippetCard({ snippet, onPress, onLongPress }: SnippetCardProps) {
+  const timeAgo = formatTimeAgo(snippet.updatedAt);
+  const previewCode = snippet.code.slice(0, 100).replace(/\n/g, ' ');
+  const hasTags = snippet.tags && snippet.tags.length > 0;
+
+  return (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => onPress(snippet)}
+      onLongPress={() => onLongPress?.(snippet)}
+      activeOpacity={0.75}
+    >
+      {/* ── Top Row: title + favorite indicator ── */}
+      <View style={styles.topRow}>
+        <Text style={styles.title} numberOfLines={1}>
+          {snippet.title}
+        </Text>
+        {snippet.isFavorite && (
+          <Text style={styles.favoriteIcon}>★</Text>
+        )}
+      </View>
+
+      {/* ── Language Badge ── */}
+      <LanguageBadge language={snippet.language} size="sm" />
+
+      {/* ── Code Preview ── */}
+      <Text style={styles.codePreview} numberOfLines={2}>
+        {previewCode}
+      </Text>
+
+      {/* ── Tags ── */}
+      {hasTags && (
+        <View style={styles.tagsRow}>
+          {snippet.tags.slice(0, 3).map((tag) => (
+            <View key={tag} style={styles.tag}>
+              <Text style={styles.tagText}>#{tag}</Text>
+            </View>
+          ))}
+          {snippet.tags.length > 3 && (
+            <Text style={styles.moreTags}>+{snippet.tags.length - 3}</Text>
+          )}
+        </View>
+      )}
+
+      {/* ── Bottom Row: time ── */}
+      <Text style={styles.timeAgo}>{timeAgo}</Text>
+
+    </TouchableOpacity>
+  );
+}
+function formatTimeAgo(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours   = Math.floor(diff / (1000 * 60 * 60));
+  const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+  if (minutes < 1)  return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours   < 24) return `${hours}h ago`;
+  if (days    < 7)  return `${days}d ago`;
+
+  return new Date(timestamp).toLocaleDateString();
+}
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#141414',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 16,
+    marginVertical: 6,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#2a2a2a',
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    flex: 1,
+    marginRight: 8,
+  },
+  favoriteIcon: {
+    fontSize: 16,
+    color: '#FFD700',
+  },
+  codePreview: {
+    fontSize: 12,
+    fontFamily: 'monospace',
+    color: '#888888',
+    backgroundColor: '#0A0A0A',
+    padding: 8,
+    borderRadius: 6,
+  },
+  tagsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  tag: {
+    backgroundColor: '#1f1f1f',
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  tagText: {
+    fontSize: 11,
+    color: '#f97316',             // orange tags
+  },
+  moreTags: {
+    fontSize: 11,
+    color: '#444444',
+    alignSelf: 'center',
+  },
+  timeAgo: {
+    fontSize: 11,
+    color: '#444444',
+    textAlign: 'right',
+  },
+});

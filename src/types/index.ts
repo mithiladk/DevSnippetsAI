@@ -10,7 +10,11 @@ export interface Snippet {
   screenshotUri?: string;
   aiExplanation?: string;
 }
-
+export interface AIExplanation {
+  explanation: string;
+  summary: string;
+  improvements: string[];
+}
 export type CreateSnippetInput = Omit<
   Snippet,
   "id" | "createdAt" | "updatedAt"
@@ -27,3 +31,6 @@ export interface LocalFile {
 }
 
 export type ThemeMode = "light" | "dark" | "system";
+
+
+export type ExportFormat = 'txt' | 'js' | 'json';
