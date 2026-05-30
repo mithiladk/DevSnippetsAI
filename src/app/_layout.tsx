@@ -21,7 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="snippet/create"    options={{ headerShown: false }} />
         <Stack.Screen name="snippet/[id]"      options={{ headerShown: false }} />
         <Stack.Screen name="snippet/edit/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="settings"          options={{ headerShown: false }} />
+        {/* <Stack.Screen name="settings"          options={{ headerShown: false }} /> */}
       </Stack>
       <StatusBar style="light" />
     </>
