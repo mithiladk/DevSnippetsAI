@@ -31,3 +31,4 @@ Scan QR with Expo Go app on mobile.
 - `src/services/` — AI API integration
 - `src/utils/` — Export utilities
 - `src/constants/` — Theme and language config
+

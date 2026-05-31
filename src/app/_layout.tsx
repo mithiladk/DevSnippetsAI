@@ -1,27 +1,24 @@
-
-
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { initDatabase } from '@/database/db';
+import { initDatabase } from "@/database/db";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 
 export default function RootLayout() {
   useEffect(() => {
     try {
       initDatabase();
-    } catch (error) {
-      console.error('DB init failed:', error);
+    } catch (e) {
+      console.error("DB init failed:", e);
     }
   }, []);
 
   return (
     <>
-      <Stack>
-        <Stack.Screen name="(tabs)"            options={{ headerShown: false }} />
-        <Stack.Screen name="snippet/create"    options={{ headerShown: false }} />
-        <Stack.Screen name="snippet/[id]"      options={{ headerShown: false }} />
-        <Stack.Screen name="snippet/edit/[id]" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="settings"          options={{ headerShown: false }} /> */}
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="snippet/create" />
+        <Stack.Screen name="snippet/[id]" />
+        <Stack.Screen name="snippet/edit/[id]" />
       </Stack>
       <StatusBar style="light" />
     </>

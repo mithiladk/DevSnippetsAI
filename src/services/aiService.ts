@@ -1,16 +1,14 @@
-// src/services/aiService.ts
+import { AIExplanation } from "@/types";
+import * as SecureStore from "expo-secure-store";
 
-import * as SecureStore from 'expo-secure-store';
-import { AIExplanation } from '@/types';
+const API_KEY_STORAGE_KEY = "devsnippets_api_key";
+const API_PROVIDER_KEY = "devsnippets_api_provider";
 
-const API_KEY_STORAGE_KEY = 'devsnippets_api_key';
-const API_PROVIDER_KEY    = 'devsnippets_api_provider';
-
-export type AIProvider = 'anthropic' | 'openai' | 'gemini';
+export type AIProvider = "anthropic" | "openai" | "gemini" | "groq";
 
 export async function saveAPIKey(
   apiKey: string,
-  provider: AIProvider
+  provider: AIProvider,
 ): Promise<void> {
   await SecureStore.setItemAsync(API_KEY_STORAGE_KEY, apiKey);
   await SecureStore.setItemAsync(API_PROVIDER_KEY, provider);
@@ -20,8 +18,10 @@ export async function getAPIKey(): Promise<{
   key: string | null;
   provider: AIProvider | null;
 }> {
-  const key      = await SecureStore.getItemAsync(API_KEY_STORAGE_KEY);
-  const provider = await SecureStore.getItemAsync(API_PROVIDER_KEY) as AIProvider | null;
+  const key = await SecureStore.getItemAsync(API_KEY_STORAGE_KEY);
+  const provider = (await SecureStore.getItemAsync(
+    API_PROVIDER_KEY,
+  )) as AIProvider | null;
   return { key, provider };
 }
 
@@ -30,23 +30,59 @@ export async function deleteAPIKey(): Promise<void> {
   await SecureStore.deleteItemAsync(API_PROVIDER_KEY);
 }
 
+// export async function explainCode(
+//   code: string,
+//   language: string,
+// ): Promise<AIExplanation> {
+//   const { key, provider } = await getAPIKey();
+
+//   if (!key || !provider) {
+//     throw new Error(
+//       "No API key found. Please add your AI API key in Settings.",
+//     );
+//   }
+
+//   const prompt = buildPrompt(code, language);
+
+//   switch (provider) {
+//     case "anthropic":
+//       return await callAnthropic(key, prompt);
+//     case "openai":
+//       return await callOpenAI(key, prompt);
+//     case "gemini":
+//       return await callGemini(key, prompt);
+//     case 'groq': return await callGroq(key, prompt);
+//     default:
+//       throw new Error(`Unknown AI provider: ${provider}`);
+//   }
+// }
 export async function explainCode(
   code: string,
   language: string
 ): Promise<AIExplanation> {
   const { key, provider } = await getAPIKey();
 
+  console.log('[AI] Provider:', provider);
+  console.log('[AI] Key exists:', !!key);
+  console.log('[AI] Key preview:', key?.substring(0, 10));
+
   if (!key || !provider) {
-    throw new Error('No API key found. Please add your AI API key in Settings.');
+    throw new Error('No API key found. Please add your API key in Settings.');
   }
 
   const prompt = buildPrompt(code, language);
 
-  switch (provider) {
-    case 'anthropic': return await callAnthropic(key, prompt);
-    case 'openai':    return await callOpenAI(key, prompt);
-    case 'gemini':    return await callGemini(key, prompt);
-    default:          throw new Error(`Unknown AI provider: ${provider}`);
+  try {
+    switch (provider) {
+      case 'anthropic': return await callAnthropic(key, prompt);
+      case 'openai':    return await callOpenAI(key, prompt);
+      case 'gemini':    return await callGemini(key, prompt);
+      case 'groq':      return await callGroq(key, prompt);
+      default:          throw new Error(`Unknown provider: ${provider}`);
+    }
+  } catch (e: any) {
+    console.log('[AI] Full error:', e.message);
+    throw e;
   }
 }
 
@@ -70,30 +106,33 @@ ${code}
 
 function parseAIResponse(raw: string): AIExplanation {
   const cleaned = raw
-    .replace(/^```json\s*/i, '')
-    .replace(/^```\s*/i, '')
-    .replace(/```\s*$/i, '')
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "")
     .trim();
 
   try {
     return JSON.parse(cleaned) as AIExplanation;
   } catch {
-    throw new Error('AI returned an unexpected format. Please try again.');
+    throw new Error("AI returned an unexpected format. Please try again.");
   }
 }
 
-async function callAnthropic(apiKey: string, prompt: string): Promise<AIExplanation> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
+async function callAnthropic(
+  apiKey: string,
+  prompt: string,
+): Promise<AIExplanation> {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: "user", content: prompt }],
     }),
   });
 
@@ -102,17 +141,20 @@ async function callAnthropic(apiKey: string, prompt: string): Promise<AIExplanat
   return parseAIResponse(data.content[0].text);
 }
 
-async function callOpenAI(apiKey: string, prompt: string): Promise<AIExplanation> {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
+async function callOpenAI(
+  apiKey: string,
+  prompt: string,
+): Promise<AIExplanation> {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: "gpt-4o-mini",
       max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: "user", content: prompt }],
     }),
   });
 
@@ -121,19 +163,64 @@ async function callOpenAI(apiKey: string, prompt: string): Promise<AIExplanation
   return parseAIResponse(data.choices[0].message.content);
 }
 
-async function callGemini(apiKey: string, prompt: string): Promise<AIExplanation> {
+async function callGemini(
+  apiKey: string,
+  prompt: string,
+): Promise<AIExplanation> {
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
       }),
-    }
+    },
   );
 
   if (!response.ok) throw new Error(`Gemini error: ${response.status}`);
   const data = await response.json();
   return parseAIResponse(data.candidates[0].content.parts[0].text);
+}
+
+// async function callGroq(apiKey: string, prompt: string): Promise<AIExplanation> {
+//   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'Authorization': `Bearer ${apiKey}`,
+//     },
+//     body: JSON.stringify({
+//       model: 'llama3-8b-8192',
+//       max_tokens: 1024,
+//       messages: [{ role: 'user', content: prompt }],
+//     }),
+//   });
+
+//   if (!response.ok) throw new Error(`Groq error: ${response.status}`);
+//   const data = await response.json();
+//   return parseAIResponse(data.choices[0].message.content);
+// }
+
+async function callGroq(apiKey: string, prompt: string): Promise<AIExplanation> {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'llama-3.1-8b-instant',   
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    console.log('[Groq error detail]', JSON.stringify(err));
+    throw new Error(`Groq error: ${response.status}`);
+  }
+  const data = await response.json();
+  return parseAIResponse(data.choices[0].message.content);
 }
