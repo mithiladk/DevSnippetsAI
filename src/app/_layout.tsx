@@ -1,4 +1,5 @@
 import { initDatabase } from "@/database/db";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -13,14 +14,16 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="snippet/create" />
-        <Stack.Screen name="snippet/[id]" />
-        <Stack.Screen name="snippet/edit/[id]" />
-      </Stack>
-      <StatusBar style="light" />
-    </>
+    <ThemeProvider>
+      <>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="snippet/create" />
+          <Stack.Screen name="snippet/[id]" />
+          <Stack.Screen name="snippet/edit/[id]" />
+        </Stack>
+        <StatusBar style="auto" />
+      </>
+    </ThemeProvider>
   );
 }

@@ -1,14 +1,12 @@
-
-
-import { useRef } from 'react';
+import { useTheme } from "@/context/ThemeContext";
+import { useRef } from "react";
 import {
-  View,
+  Keyboard,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Keyboard,
-} from 'react-native';
-
+  View,
+} from "react-native";
 
 interface SearchBarProps {
   value: string;
@@ -18,15 +16,20 @@ interface SearchBarProps {
   autoFocus?: boolean;
 }
 
-
 export function SearchBar({
   value,
   onChangeText,
   onClear,
-  placeholder = 'Search snippets...',
+  placeholder = "Search snippets...",
   autoFocus = false,
 }: SearchBarProps) {
   const inputRef = useRef<TextInput>(null);
+  const { colors } = useTheme();
+  const bg = colors?.bg ?? "#0A0A0A";
+  const card = colors?.card ?? "#141414";
+  const border = colors?.border ?? "#2a2a2a";
+  const text = colors?.text ?? "#FFFFFF";
+  const subtext = colors?.subtext ?? "#555555";
 
   const hasText = value.length > 0;
 
@@ -40,18 +43,24 @@ export function SearchBar({
   }
 
   return (
-    <View style={styles.container}>
-
-      {/* 🔍 Search Icon */}
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: card,
+          borderColor: border,
+        },
+      ]}
+    >
       <View style={styles.iconBox}>
         <TextInput
-          style={styles.icon}
+          style={[styles.input, { color: text }]}
+          placeholderTextColor={subtext}
           value="🔍"
           editable={false}
         />
       </View>
 
-      {/* ⌨️ Text Input */}
       <TextInput
         ref={inputRef}
         style={styles.input}
@@ -67,7 +76,6 @@ export function SearchBar({
         clearButtonMode="never"
       />
 
- 
       {hasText && (
         <TouchableOpacity
           style={styles.clearButton}
@@ -75,29 +83,22 @@ export function SearchBar({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <View style={styles.clearCircle}>
-            <TextInput
-              style={styles.clearIcon}
-              value="✕"
-              editable={false}
-            />
+            <TextInput style={styles.clearIcon} value="✕" editable={false} />
           </View>
         </TouchableOpacity>
       )}
-
     </View>
   );
 }
 
-
-
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#141414',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#141414",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2a2a2a',
+    borderColor: "#2a2a2a",
     marginHorizontal: 16,
     marginVertical: 8,
     paddingHorizontal: 12,
@@ -108,30 +109,30 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 16,
-    color: '#444444',
+    color: "#444444",
   },
   input: {
     flex: 1,
     fontSize: 15,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     paddingVertical: 0,
   },
   clearButton: {
     marginLeft: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   clearCircle: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#2a2a2a',   // dark grey circle
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#2a2a2a", // dark grey circle
+    justifyContent: "center",
+    alignItems: "center",
   },
   clearIcon: {
     fontSize: 10,
-    color: '#888888',
-    textAlign: 'center',
+    color: "#888888",
+    textAlign: "center",
   },
 });

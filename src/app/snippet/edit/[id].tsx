@@ -135,6 +135,7 @@ export default function EditSnippet() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.languageRow}
+                keyboardShouldPersistTaps="handled"
             >
               {LANGUAGES.map((lang) => (
                 <TouchableOpacity

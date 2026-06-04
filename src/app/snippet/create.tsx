@@ -130,11 +130,13 @@ export default function CreateSnippet() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.languageRow}
+               keyboardShouldPersistTaps="handled" 
             >
               {LANGUAGES.map((lang) => (
                 <TouchableOpacity
                   key={lang.value}
                   onPress={() => setLanguage(lang.value)}
+                    activeOpacity={0.6}    
                   style={[
                     styles.languageChip,
                     language === lang.value && styles.languageChipActive,

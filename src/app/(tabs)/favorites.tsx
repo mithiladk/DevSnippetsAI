@@ -13,6 +13,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "@/context/ThemeContext";
 
 
 export default function FavoritesScreen() {
@@ -24,6 +25,11 @@ export default function FavoritesScreen() {
 );
 
   const [query, setQuery] = useState("");
+    const { colors } = useTheme();
+  const bg      = colors?.bg      ?? '#0A0A0A';
+  const text    = colors?.text    ?? '#FFFFFF';
+  const subtext = colors?.subtext ?? '#555555';
+  const primary = colors?.primary ?? '#f97316';
 
 
   const filtered = useMemo(() => {
@@ -68,11 +74,11 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top","bottom"]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bg }]} edges={["top"]}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>Favorites</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: text }]}>Favorites</Text>
+          <Text style={[styles.headerSubtitle, { color: subtext }]}>
             {favorites.length} snippet{favorites.length !== 1 ? "s" : ""}{" "}
             starred
           </Text>

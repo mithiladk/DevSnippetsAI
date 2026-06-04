@@ -1,5 +1,6 @@
 import { SearchBar } from "@/components/SearchBar";
 import { SnippetCard } from "@/components/SnippetCard";
+import { useTheme } from "@/context/ThemeContext";
 import { useSnippets } from "@/hooks/useSnippets";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
@@ -14,8 +15,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const { colors } = useTheme();
   const { snippets, loading, error, refresh, markFavorite } = useSnippets();
   const [query, setQuery] = useState("");
+
+  const bg = colors?.bg ?? "#0A0A0A";
+  const text = colors?.text ?? "#FFFFFF";
+  const subtext = colors?.subtext ?? "#555555";
+  const primary = colors?.primary ?? "#f97316";
 
   useFocusEffect(
     useCallback(() => {
@@ -37,18 +44,23 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#f97316" />
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View style={[styles.centered, { backgroundColor: colors.bg }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.subtext }]}>
+          Loading...
+        </Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.centered}>
+      <View style={[styles.centered, { backgroundColor: bg }]}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={refresh}>
+        <TouchableOpacity
+          style={[styles.retryButton, { backgroundColor: primary }]}
+          onPress={refresh}
+        >
           <Text style={styles.retryText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -56,16 +68,19 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top","bottom"]}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: bg }]}
+      edges={["top", "bottom"]}
+    >
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>DevSnippets</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: text }]}>DevSnippets</Text>
+          <Text style={[styles.headerSubtitle, { color: subtext }]}>
             {snippets.length} snippet{snippets.length !== 1 ? "s" : ""}
           </Text>
         </View>
         <TouchableOpacity
-          style={styles.addButton}
+          style={[styles.addButton, { backgroundColor: primary }]}
           onPress={() => router.push("/snippet/create")}
         >
           <Text style={styles.addButtonText}>+</Text>
@@ -79,7 +94,7 @@ export default function HomeScreen() {
       />
 
       {query.trim() !== "" && (
-        <Text style={styles.resultsLabel}>
+        <Text style={[styles.resultsLabel, { color: subtext }]}>
           {filtered.length} result{filtered.length !== 1 ? "s" : ""} for "
           {query}"
         </Text>
@@ -101,10 +116,10 @@ export default function HomeScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>{query ? "🔍" : "📋"}</Text>
-            <Text style={styles.emptyTitle}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
               {query ? "No results found" : "No snippets yet"}
             </Text>
-            <Text style={styles.emptySubtitle}>
+            <Text style={[styles.emptySubtitle, { color: subtext }]}>
               {query
                 ? `Nothing matched "${query}"`
                 : "Tap + to save your first snippet"}
@@ -117,10 +132,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#0A0A0A" },
+  safeArea: { flex: 1 },
   centered: {
     flex: 1,
-    backgroundColor: "#0A0A0A",
     justifyContent: "center",
     alignItems: "center",
     gap: 12,
@@ -133,18 +147,12 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#FFFFFF",
-    letterSpacing: 0.5,
-  },
-  headerSubtitle: { fontSize: 13, color: "#555555", marginTop: 2 },
+  headerTitle: { fontSize: 24, fontWeight: "800", letterSpacing: 0.5 },
+  headerSubtitle: { fontSize: 13, marginTop: 2 },
   addButton: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "#f97316",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -154,26 +162,16 @@ const styles = StyleSheet.create({
     lineHeight: 32,
     fontWeight: "400",
   },
-  resultsLabel: {
-    fontSize: 12,
-    color: "#555555",
-    paddingHorizontal: 16,
-    marginBottom: 4,
-  },
+  resultsLabel: { fontSize: 12, paddingHorizontal: 16, marginBottom: 4 },
   listContent: { paddingBottom: 100, flexGrow: 1 },
-  loadingText: { color: "#555555", fontSize: 14 },
+  loadingText: { fontSize: 14 },
   errorText: {
     color: "#FF6B6B",
     fontSize: 15,
     textAlign: "center",
     marginHorizontal: 32,
   },
-  retryButton: {
-    backgroundColor: "#f97316",
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
+  retryButton: { paddingHorizontal: 24, paddingVertical: 10, borderRadius: 8 },
   retryText: { color: "#FFFFFF", fontWeight: "600" },
   emptyContainer: {
     flex: 1,
@@ -183,11 +181,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   emptyIcon: { fontSize: 48, marginBottom: 8 },
-  emptyTitle: { fontSize: 18, fontWeight: "700", color: "#FFFFFF" },
-  emptySubtitle: {
-    fontSize: 14,
-    color: "#555555",
-    textAlign: "center",
-    paddingHorizontal: 32,
-  },
+  emptyTitle: { fontSize: 18, fontWeight: "700" },
+  emptySubtitle: { fontSize: 14, textAlign: "center", paddingHorizontal: 32 },
 });
